@@ -98,8 +98,8 @@ async def good_night(bot, ev):
 # 23:59清除一天的早安晚安计数
 @sv.scheduled_job('cron', hour='23', minute='59')
 async def reset_data():
-    bot = hoshino.get_bot()
-    group_list = await bot.get_group_list()
+    #bot = hoshino.get_bot()
+    #group_list = await bot.get_group_list()
     #for each_g in group_list:
         #group_id = each_g['group_id']
     group_id = ev.get_group_id()
@@ -110,6 +110,26 @@ async def reset_data():
     data['today_count']['night'] = 0
     with open(current_dir, "w", encoding="UTF-8") as f:
         f.write(json.dumps(data, ensure_ascii=False, indent=4))
+
+@sv.on_fullmatch('早安晚安手动清除计数')
+async def manual_reset_data(bot,ev):
+    if not priv.check_priv(ev.get_author(), priv.SUPERUSER):
+        msg = '很抱歉您没有权限进行此操作，该操作仅限维护组'
+        await bot.kkr_send(ev, msg)
+        return
+    #bot = hoshino.get_bot()
+    #group_list = await bot.get_group_list()
+    #for each_g in group_list:
+        #group_id = each_g['group_id']
+    group_id = ev.get_group_id()
+    current_dir = os.path.join(os.path.join(os.path.expanduser(kokkoro.config.RES_DIR),'good_morning'),f'data\{group_id}.json')
+    file = open(current_dir, 'r', encoding = 'UTF-8')
+    data = json.load(file)
+    data['today_count']['morning'] = 0
+    data['today_count']['night'] = 0
+    with open(current_dir, "w", encoding="UTF-8") as f:
+        f.write(json.dumps(data, ensure_ascii=False, indent=4))
+    await bot.kkr_send(ev, "重设成功")
 
 @sv.on_fullmatch('我的作息')
 async def my_status(bot, ev):
